@@ -1,13 +1,12 @@
 APP := $(shell basename $(shell git remote get-url origin))
 REGISTRY := rudychuk
-VERSION := $(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)
+VERSION := v1.0.5-$(shell git rev-parse --short HEAD)
 TARGETOS := linux
 TARGETARCH := arm64
 
 IMAGE_NAME := mybot
 LD_FLAGS := -X=github.com/RudychukDmytro/telebot-GL-/cmd.appVersion=$(VERSION)
 IMAGE_TAG := $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH)
-
 
 format:
 	gofmt -s -w ./

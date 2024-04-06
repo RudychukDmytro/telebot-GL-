@@ -6,6 +6,8 @@ TARGETARCH := arm64
 
 IMAGE_NAME := mybot
 LD_FLAGS := -X=github.com/RudychukDmytro/telebot-GL-/cmd.appVersion=$(VERSION)
+IMAGE_TAG := $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH)
+
 
 format:
 	gofmt -s -w ./
@@ -35,7 +37,7 @@ windows: format get
 	GOOS=windows GOARCH=amd64 go build -o $(IMAGE_NAME) -ldflags "$(LD_FLAGS)"
 
 clean:
-	rm -rf mybot
+	docker rmi $(IMAGE_TAG)
 
 image:
 	docker build . -t ${REGISTRY}/${APP}:${VERSION}-${TARGETARCH}

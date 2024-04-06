@@ -1,35 +1,38 @@
-APP=$(shell basename $(shell git remote get-url origin))
-REGISTRY:=hub.docker.com
-VERSION=$(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)
-TARGETOS=linux
-TARGETARCH=arm64
+APP := $(shell basename $(shell git remote get-url origin))
+REGISTRY := rudychuk
+VERSION := $(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)
+TARGETOS := linux
+TARGETARCH := arm64
 
-IMAGE_NAME := image
-DOCKER_REGISTRY := quay.io/projectquay
-CONTAINER_NAME := my_container
+IMAGE_NAME := mybot
+LD_FLAGS := -X=github.com/RudychukDmytro/telebot-GL-/cmd.appVersion=$(VERSION)
 
 format:
 	gofmt -s -w ./
-
+	
 get:
 	go get
 
 build: format get
-	CGO_ENABLED=0 GOOS=$(TARGETOS) GOARCH=$(shell dpkg --print-architecture) go build -v -o mybot -ldflags "-X="github.com/RudychukDmytro/telebot-GL-/cmd.appVersion=$(VERSION)
+	CGO_ENABLED=0 GOOS=$(TARGETOS) GOARCH=$(TARGETARCH) go build -v -o $(IMAGE_NAME) -ldflags "$(LD_FLAGS)"
+
+test:
+	go test -v
 
 lint:
-	go test -v
-linux:
-	GOOS=linux GOARCH=amd64 go build -o $(IMAGE_NAME)_linux
+	golint
 
-arm:
-	GOOS=linux GOARCH=arm go build -o $(IMAGE_NAME)_arm
+linux: format get
+	GOOS=linux GOARCH=amd64 go build -o $(IMAGE_NAME) -ldflags "$(LD_FLAGS)"
 
-macos:
-	GOOS=darwin GOARCH=amd64 go build -o $(IMAGE_NAME)_macos
+arm: format get
+	GOOS=linux GOARCH=arm go build -o $(IMAGE_NAME) -ldflags "$(LD_FLAGS)"
 
-windows:
-	GOOS=windows GOARCH=amd64 go build -o $(IMAGE_NAME)_windows
+macos: format get
+	GOOS=darwin GOARCH=amd64 go build -o $(IMAGE_NAME) -ldflags "$(LD_FLAGS)"
+
+windows: format get
+	GOOS=windows GOARCH=amd64 go build -o $(IMAGE_NAME) -ldflags "$(LD_FLAGS)"
 
 clean:
 	rm -rf mybot
